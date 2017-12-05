@@ -31,14 +31,12 @@ class getid3_mp3 extends getid3_handler
 		$info = &$this->getid3->info;
 
 		$initialOffset = $info['avdataoffset'];
-
 		if (!$this->getOnlyMPEGaudioInfo($info['avdataoffset'])) {
 			if ($this->allow_bruteforce) {
 				$this->error('Rescanning file in BruteForce mode');
 				$this->getOnlyMPEGaudioInfoBruteForce($this->getid3->fp, $info);
 			}
 		}
-
 
 		if (isset($info['mpeg']['audio']['bitrate_mode'])) {
 			$info['audio']['bitrate_mode'] = strtolower($info['mpeg']['audio']['bitrate_mode']);
@@ -1377,7 +1375,11 @@ class getid3_mp3 extends getid3_handler
 		$header = $this->fread($sync_seek_buffer_size);
 		$sync_seek_buffer_size = strlen($header);
 		$SynchSeekOffset = 0;
+                $time = time();
 		while ($SynchSeekOffset < $sync_seek_buffer_size) {
+			if (time() - $time > 5) {
+				return false;
+			}
 			if ((($avdataoffset + $SynchSeekOffset)  < $info['avdataend']) && !feof($this->getid3->fp)) {
 
 				if ($SynchSeekOffset > $sync_seek_buffer_size) {
